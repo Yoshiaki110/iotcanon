@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <head>
+    <title>設定画面</title>
+  </head>
+  <script type="text/javascript">
+    function Get() {
+      var req = new XMLHttpRequest();
+      req.open('GET', '/api/setting', true);
+      req.send(null);
+      req.onreadystatechange = function() {
+        if (req.readyState == 4) { // 通信の完了時
+          if (req.status == 200) { // 通信の成功時
+            var obj = JSON.parse(req.responseText);
+            console.log(obj);
+            frm.sex.value = obj.sex;
+            frm.age.value = obj.age;
+            frm.envsid.value = obj.envsid;
+            frm.bodysid.value = obj.bodysid;
+          }
+//        } else {
+//          frm.result.value = "通信中..."
+        }
+      }
+    }
+    function Post() {
+      var req = new XMLHttpRequest();
+//      req.open('POST', '/api/setting', true);
+      req.open('POST', '/', true);
+      req.setRequestHeader( 'Content-Type', 'application/json');
+      var data = {
+        sensorid: frm.sensorid.value, phone: frm.phone.value, enable: frm.enable.checked,
+        len: frm.mon.length,
+        c0: frm.mon['0'].checked, c1: frm.mon['1'].checked
+      };
+      req.send(JSON.stringify(data));
+      req.onreadystatechange = function() {
+        if (req.readyState == 4) { // 通信の完了時
+          if (req.status == 200) { // 通信の成功時
+//            frm.result.value = req.responseText;
+          }
+//        } else {
+//          frm.result.value = "通信中..."
+        }
+      }
+    }
+    function Home() {
+      location.href = '/';
+    }
+    window.onload = Get;
+
+  </script>
+  <body>
+    ■設定画面■
+    <form name="frm">
+      センサID<input type="text" name="sensorid" size="17">
+      電話番号<input type="text" name="phone" size="17">
+      有効<input type="checkbox" name="enable">
+      <br>
+
+      <table>
+        <tr><th>曜日</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th><th>21</th><th>22</th><th>23</th></tr>
+
+        <tr><td>月</td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        <td><input type="checkbox" name="mon"></td>
+        </tr>
+
+        <tr><td>火</td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        <td><input type="checkbox" name="tue"></td>
+        </tr>
+
+        <tr><td>水</td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        <td><input type="checkbox" name="wed"></td>
+        </tr>
+
+        <tr><td>木</td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        <td><input type="checkbox" name="thu"></td>
+        </tr>
+
+        <tr><td>金</td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        <td><input type="checkbox" name="fri"></td>
+        </tr>
+
+        <tr><td>土</td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        <td><input type="checkbox" name="sat"></td>
+        </tr>
+
+        <tr><td>日</td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        <td><input type="checkbox" name="sun"></td>
+        </tr>
+
+      </table>
+
+      <INPUT type="button" name="button0" onClick="Home()" value="戻る">
+      <INPUT type="button" name="button1" onClick="Gett()" value="取得">
+      <INPUT type="button" name="button2" onClick="Post()" value="設定">
+    </form>
+  </body>
+</html>
+
