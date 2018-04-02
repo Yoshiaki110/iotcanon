@@ -24,7 +24,28 @@
         }
       }
     }
+    function check(arr) {
+      var ret = new Array();
+      for (var i = 0; i < arr.length; i++) {
+        ret[i] = arr[i].checked;
+      }
+      return ret;
+    }
     function Post() {
+      var data = {
+        sensorid: frm.sensorid.value, phone: frm.phone.value, enable: frm.enable.checked,
+        len: frm.mon.length,
+         mon: check(frm.mon),
+         tue: check(frm.tue),
+         wed: check(frm.wed),
+         thu: check(frm.thu),
+         fri: check(frm.fri),
+         sat: check(frm.sat),
+         sun: check(frm.sun)
+      };
+      console.log(data);
+    }
+    function _Post() {
       var req = new XMLHttpRequest();
 //      req.open('POST', '/api/setting', true);
       req.open('POST', '/', true);
