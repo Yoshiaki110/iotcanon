@@ -5,77 +5,92 @@
     <title>設定画面</title>
   </head>
   <script type="text/javascript">
-    function Get() {
-      var req = new XMLHttpRequest();
-      req.open('GET', '/api/setting', true);
-      req.send(null);
-      req.onreadystatechange = function() {
-        if (req.readyState == 4) { // 通信の完了時
-          if (req.status == 200) { // 通信の成功時
-            var obj = JSON.parse(req.responseText);
-            console.log(obj);
-            frm.sex.value = obj.sex;
-            frm.age.value = obj.age;
-            frm.envsid.value = obj.envsid;
-            frm.bodysid.value = obj.bodysid;
-          }
-//        } else {
-//          frm.result.value = "通信中..."
-        }
+    function init() {
+      var id = location.search.substring(1);
+      if (id == 'BPCM01' || id == 'BPCM02' || id == 'BPCM03') {
+        Get(id);
+        frm.sensorid.value = id;
+      } else {
+        frm.sensorid.value = 'ID未設定';
       }
     }
-    function check(arr) {
+    function check(dst, src) {
+      for (var i = 0; i < dst.length; i++) {
+        dst[i].checked = src[i];
+      }
+    }
+    function isCheck(arr) {
       var ret = new Array();
       for (var i = 0; i < arr.length; i++) {
         ret[i] = arr[i].checked;
       }
       return ret;
     }
-    function Post() {
-      var data = {
-        sensorid: frm.sensorid.value, phone: frm.phone.value, enable: frm.enable.checked,
-        len: frm.mon.length,
-         mon: check(frm.mon),
-         tue: check(frm.tue),
-         wed: check(frm.wed),
-         thu: check(frm.thu),
-         fri: check(frm.fri),
-         sat: check(frm.sat),
-         sun: check(frm.sun)
-      };
-      console.log(data);
-    }
-    function _Post() {
+    function Get(id) {
       var req = new XMLHttpRequest();
-//      req.open('POST', '/api/setting', true);
-      req.open('POST', '/', true);
-      req.setRequestHeader( 'Content-Type', 'application/json');
-      var data = {
-        sensorid: frm.sensorid.value, phone: frm.phone.value, enable: frm.enable.checked,
-        len: frm.mon.length,
-        c0: frm.mon['0'].checked, c1: frm.mon['1'].checked
-      };
-      req.send(JSON.stringify(data));
+      req.open('GET', '/api/setting?' + id, true);
+      req.send(null);
       req.onreadystatechange = function() {
         if (req.readyState == 4) { // 通信の完了時
           if (req.status == 200) { // 通信の成功時
-//            frm.result.value = req.responseText;
+            var obj = JSON.parse(req.responseText);
+            console.log(obj);
+            frm.phone.value = obj.phone;
+            frm.enable.checked = obj.enable;
+            check(frm.mon, obj.mon);
+            check(frm.tue, obj.tue);
+            check(frm.wed, obj.wed);
+            check(frm.thu, obj.thu);
+            check(frm.fri, obj.fri);
+            check(frm.sat, obj.sat);
+            check(frm.sun, obj.sun);
+//            frm.envsid.value = obj.envsid;
+//            frm.bodysid.value = obj.bodysid;
           }
 //        } else {
 //          frm.result.value = "通信中..."
         }
       }
     }
+    function Post() {
+      if (frm.sensorid.value != 'ID未設定') {
+        var req = new XMLHttpRequest();
+        req.open('POST', '/api/setting', true);
+        req.setRequestHeader( 'Content-Type', 'application/json');
+        var data = {
+          id: frm.sensorid.value, phone: frm.phone.value, enable: frm.enable.checked,
+          len: frm.mon.length,
+           mon: isCheck(frm.mon),
+           tue: isCheck(frm.tue),
+           wed: isCheck(frm.wed),
+           thu: isCheck(frm.thu),
+           fri: isCheck(frm.fri),
+           sat: isCheck(frm.sat),
+           sun: isCheck(frm.sun)
+        };
+//        console.log(data);
+        req.send(JSON.stringify(data));
+        req.onreadystatechange = function() {
+          if (req.readyState == 4) { // 通信の完了時
+            if (req.status == 200) { // 通信の成功時
+//              frm.result.value = req.responseText;
+            }
+//          } else {
+//            frm.result.value = "通信中..."
+          }
+        }
+      }
+    }
     function Home() {
       location.href = '/';
     }
-    window.onload = Get;
+    window.onload = init;
 
   </script>
   <body>
     ■設定画面■
     <form name="frm">
-      センサID<input type="text" name="sensorid" size="17">
+      センサID<input type="text" name="sensorid" size="17" disabled="disabled">
       電話番号<input type="text" name="phone" size="17">
       有効<input type="checkbox" name="enable">
       <br>
@@ -274,8 +289,6 @@
 
       </table>
 
-      <INPUT type="button" name="button0" onClick="Home()" value="戻る">
-      <INPUT type="button" name="button1" onClick="Gett()" value="取得">
       <INPUT type="button" name="button2" onClick="Post()" value="設定">
     </form>
   </body>
