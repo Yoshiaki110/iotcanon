@@ -123,7 +123,7 @@ function postGDoc() {
     };
     request.post(options, function(error, response, body){});
   }
-  setTimeout(postGDoc, 2*60*1000);
+  setTimeout(postGDoc, 60*60*1000);
 }
 
 // 指定の番号にtwolioを使って電話する
