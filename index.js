@@ -14,14 +14,14 @@ app.use(express.static('public'));
 
 app.set('port', (process.env.PORT || 5000));
 
-// ƒeƒXƒg—p
+// ãƒ†ã‚¹ãƒˆç”¨
 app.post('/test', function(req, res) {
   console.log('<>POST /test');
   console.log(req.body);
   res.sendStatus(200);
 });
 
-// İ’èƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ
+// è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿
 app.get('/api/setting', function(req, res) {
   console.log('<>GET /api/setting');
 //  console.log(req);
@@ -31,7 +31,7 @@ app.get('/api/setting', function(req, res) {
   //res.sendStatus(200);
   res.send(json);
 });
-// İ’èƒtƒ@ƒCƒ‹‚Ì‘‚«‚İ
+// è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«ã®æ›¸ãè¾¼ã¿
 app.post('/api/setting', function(req, res) {
   console.log('<>POST /api/setting');
 //  console.log(req.body);
@@ -40,7 +40,7 @@ app.post('/api/setting', function(req, res) {
   console.log(req.body.id + '.json');
 });
 
-// Webiot‚©‚ç‚Ìƒf[ƒ^‚ğ•ÛŠÇ
+// Webiotã‹ã‚‰ã®ãƒ‡ãƒ¼ã‚¿ã‚’ä¿ç®¡
 app.post('/api/webiot', function(req, res) {
   console.log('<>POST /api/webiot');
   var key = req.body.id;
@@ -63,7 +63,7 @@ app.post('/api/webiot', function(req, res) {
   console.log(req.body.id + ' = ' + req.body.value);
   res.sendStatus(200);
 });
-// lŠ´ƒZƒ“ƒT‚ÌƒCƒxƒ“ƒg
+// äººæ„Ÿã‚»ãƒ³ã‚µã®ã‚¤ãƒ™ãƒ³ãƒˆ
 app.post('/api/move', function(req, res) {
   console.log('<>POST /api/move');
   var id = req.body.id;
@@ -107,7 +107,7 @@ app.listen(app.get('port'), function() {
   console.log("Node app is running at localhost:" + app.get('port'))
 });
 
-// ‚PŠÔ‚É‚P‰ñGoogleƒV[ƒg‚É‘‚«‚İ
+// ï¼‘æ™‚é–“ã«ï¼‘å›Googleã‚·ãƒ¼ãƒˆã«æ›¸ãè¾¼ã¿
 function postGDoc() {
   console.log("<>postGDoc");
   for (key in values) {
@@ -123,10 +123,10 @@ function postGDoc() {
     };
     request.post(options, function(error, response, body){});
   }
-  setTimeout(postGDoc, 60*60*1000);
+  setTimeout(postGDoc, 2*60*1000);
 }
 
-// w’è‚Ì”Ô†‚Étwolio‚ğg‚Á‚Ä“d˜b‚·‚é
+// æŒ‡å®šã®ç•ªå·ã«twolioã‚’ä½¿ã£ã¦é›»è©±ã™ã‚‹
 function twilio(phone) {
   var headers = {
     'Accept': '*/*',
