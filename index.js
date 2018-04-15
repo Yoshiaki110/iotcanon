@@ -4,7 +4,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
 var TWILIO_CALL_URL = setting.TWILIO_CALL_URL;
-var TWILIO_CALL_BODY = setting.TWILIO_CALL_BODY;
 
 var app = express();
 var values = [];
@@ -15,12 +14,14 @@ app.use(express.static('public'));
 
 app.set('port', (process.env.PORT || 5000));
 
-
+// テスト用
 app.post('/test', function(req, res) {
   console.log('<>POST /test');
   console.log(req.body);
   res.sendStatus(200);
 });
+
+// 設定ファイルの読み込み
 app.get('/api/setting', function(req, res) {
   console.log('<>GET /api/setting');
 //  console.log(req);
@@ -30,6 +31,7 @@ app.get('/api/setting', function(req, res) {
   //res.sendStatus(200);
   res.send(json);
 });
+// 設定ファイルの書き込み
 app.post('/api/setting', function(req, res) {
   console.log('<>POST /api/setting');
 //  console.log(req.body);
@@ -37,6 +39,8 @@ app.post('/api/setting', function(req, res) {
   fs.writeFile(req.body.id + '.json', JSON.stringify(req.body, null, '  '));
   console.log(req.body.id + '.json');
 });
+
+// Webiotからのデータを保管
 app.post('/api/webiot', function(req, res) {
   console.log('<>POST /api/webiot');
   var key = req.body.id;
@@ -59,6 +63,7 @@ app.post('/api/webiot', function(req, res) {
   console.log(req.body.id + ' = ' + req.body.value);
   res.sendStatus(200);
 });
+// 人感センサのイベント
 app.post('/api/move', function(req, res) {
   console.log('<>POST /api/move');
   var id = req.body.id;
@@ -102,7 +107,9 @@ app.listen(app.get('port'), function() {
   console.log("Node app is running at localhost:" + app.get('port'))
 });
 
+// １時間に１回Googleシートに書き込み
 function postGDoc() {
+  console.log("<>postGDoc");
   for (key in values) {
 //    console.log('key:' + key + ' value:' + values[key]);
     console.log(key);
@@ -119,6 +126,7 @@ function postGDoc() {
   setTimeout(postGDoc, 60*60*1000);
 }
 
+// 指定の番号にtwolioを使って電話する
 function twilio(phone) {
   var headers = {
     'Accept': '*/*',
