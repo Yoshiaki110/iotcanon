@@ -49,13 +49,13 @@ app.post('/api/webiot', function(req, res) {
     obj = values[key]
   }
   switch (req.body.datatype) {
-  case 'temp':
+  case 'temperature':
     obj.temp = req.body.value;
     break;
-  case 'hum':
+  case 'humidity':
     obj.hum = req.body.value;
     break;
-  case 'pres':
+  case 'pressure':
     obj.pres = req.body.value;
     break;
   }
