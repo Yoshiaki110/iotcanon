@@ -7,6 +7,8 @@ var TWILIO_CALL_URL = setting.TWILIO_CALL_URL;
 
 var app = express();
 var values = [];
+var calls = [];
+var lastMinutes = 100;     // 
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -69,11 +71,13 @@ app.post('/api/move', function(req, res) {
   var id = req.body.id;
   var json = JSON.parse(fs.readFileSync(id + '.json', 'utf8'));
   res.sendStatus(200);
+  console.log(' json.enable:' + json.enable + ' json.phone:' + json.phone);
   if (json.enable && json.phone != '') {
-    var date = new Date();
-    var hour = date.getHours();
-    var dayOfWeek = date.getDay();
+    var now = new Date(Date.now() + 9*60*60*1000);    // カッコ悪いけど
+    var hour = now.getUTCHours();                     // UTCで動いているのをJSTにしてる
+    var dayOfWeek = now.getDay();
     var call = false;
+    console.log(' dayOfWeek:' + dayOfWeek + ' hour:' + hour);
     switch (dayOfWeek) {
     case 0:
       call = json.sun[hour];
@@ -97,6 +101,7 @@ app.post('/api/move', function(req, res) {
       call = json.sat[hour];
       break;
     }
+    console.log(' call:' + call);
     if (call) {
       twilio(json.phone);
     }
@@ -108,26 +113,48 @@ app.listen(app.get('port'), function() {
 });
 
 // １時間に１回Googleシートに書き込み
-function postGDoc() {
-  console.log("<>postGDoc");
-  for (key in values) {
-//    console.log('key:' + key + ' value:' + values[key]);
-    console.log(key);
-    console.log(values[key]);
-    var options = {
-      uri: "https://script.google.com/macros/s/AKfycbz7IbdIPHUeF2pu_CYT8QQgV5yesTTrjejHbNdvUEC9LWU7jiQ/exec",
-      headers: {
-        "Content-type": "application/json",
-      },
-      json: values[key]
-    };
-    request.post(options, function(error, response, body){});
+function loop() {
+  var now = new Date();
+  var minutes = now.getMinutes();
+//  var minutes = now.getSeconds();     // 秒ごと(DEBUG)
+  console.log("<>loop " + lastMinutes + " > " + minutes);
+  if (lastMinutes > minutes && minutes == 0) {	// 毎時0分に
+    console.log("  0 minute!!");
+    for (key in values) {
+      console.log(values[key]);
+      if (values[key].temp == 0 && values[key].hum == 0 && values[key].pres == 0) {
+        console.log("  " + key + " no data");
+        continue;
+      }
+      console.log("  " + key + " send data");
+      var options = {
+        uri: "https://script.google.com/macros/s/AKfycbz7IbdIPHUeF2pu_CYT8QQgV5yesTTrjejHbNdvUEC9LWU7jiQ/exec",
+        headers: {
+          "Content-type": "application/json",
+        },
+        json: values[key]
+      };
+      request.post(options, function(error, response, body){});
+      values[key] = {"id": key, "temp": 0, "hum": 0, "pres": 0};
+    }
   }
-  setTimeout(postGDoc, 60*60*1000);
+  lastMinutes = minutes;
+  setTimeout(loop, 55*1000);	// 約１分ごと
+//  setTimeout(loop, 900);     // 約１秒ごと(DEBUG)
 }
 
 // 指定の番号にtwolioを使って電話する
 function twilio(phone) {
+  var now = Date.now();
+  if (typeof(calls[phone]) != "undefined") {
+    var past = now - calls[phone];
+    if (past < 3*60*1000) {        // ３分以内は再電話しない
+      console.log("  now:" + now + " last:" + calls[phone] + " past:" + past + " no call");
+      return;
+    }
+    console.log("  now:" + now + " last:" + calls[phone] + " past:" + past + " call");
+  }
+  calls[phone] = now;
   var headers = {
     'Accept': '*/*',
     'Content-Type': 'application/x-www-form-urlencoded'
@@ -135,6 +162,7 @@ function twilio(phone) {
   var body = 'NumberToCall=%2B81' + phone.substr( 1);
   console.log(body);
   var url = TWILIO_CALL_URL;
+/*
   request({
     url: url,
     method: 'POST',
@@ -142,8 +170,9 @@ function twilio(phone) {
     body: body,
     json: false
   });
+*/
 }
-setTimeout(postGDoc, 2*60*1000);
+setTimeout(loop, 1000);
 
 /*
 {
@@ -154,5 +183,11 @@ setTimeout(postGDoc, 2*60*1000);
     "pres" : 56,
   }
 }
+・連続で電話しない
+履歴があってかけた時刻が３分以内なら電話しない
+・LINE
+電話した場合
+
+
 
 */
