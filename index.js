@@ -4,10 +4,13 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
 var TWILIO_CALL_URL = setting.TWILIO_CALL_URL;
+var LINE_TOKEN = setting.LINE_TOKEN;
+var LINE_ID = setting.LINE_ID;
 
 var app = express();
 var values = [];
 var calls = [];
+var lineCalls = [];
 var lastMinutes = 100;     // 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -71,41 +74,48 @@ app.post('/api/move', function(req, res) {
   var id = req.body.id;
   var json = JSON.parse(fs.readFileSync(id + '.json', 'utf8'));
   res.sendStatus(200);
-  console.log(' json.enable:' + json.enable + ' json.phone:' + json.phone);
-  if (json.enable && json.phone != '') {
-    var now = new Date(Date.now() + 9*60*60*1000);    // カッコ悪いけど
-    var hour = now.getUTCHours();                     // UTCで動いているのをJSTにしてる
-    var dayOfWeek = now.getDay();
-    var call = false;
-    console.log(' dayOfWeek:' + dayOfWeek + ' hour:' + hour);
-    switch (dayOfWeek) {
-    case 0:
-      call = json.sun[hour];
-      break;
-    case 1:
-      call = json.mon[hour];
-      break;
-    case 2:
-      call = json.tue[hour];
-      break;
-    case 3:
-      call = json.wed[hour];
-      break;
-    case 4:
-      call = json.thu[hour];
-      break;
-    case 5:
-      call = json.fri[hour];
-      break;
-    case 6:
-      call = json.sat[hour];
-      break;
-    }
-    console.log(' call:' + call);
-    if (call) {
-      twilio(json.phone);
-    }
+  var now = new Date(Date.now() + 9*60*60*1000);    // カッコ悪いけど
+  var hour = now.getUTCHours();                     // UTCで動いているのをJSTにしてる
+  var dayOfWeek = now.getDay();
+  var call = false;
+  console.log(' dayOfWeek:' + dayOfWeek + ' hour:' + hour);
+  switch (dayOfWeek) {
+  case 0:
+    call = json.sun[hour];
+    break;
+  case 1:
+    call = json.mon[hour];
+    break;
+  case 2:
+    call = json.tue[hour];
+    break;
+  case 3:
+    call = json.wed[hour];
+    break;
+  case 4:
+    call = json.thu[hour];
+    break;
+  case 5:
+    call = json.fri[hour];
+    break;
+  case 6:
+    call = json.sat[hour];
+    break;
   }
+  console.log(' call:' + call);
+  console.log(' enable:' + json.enable + ' phone:' + json.phone);
+  if (call && json.enable && json.phone != '') {
+    twilio(json.phone);
+  }
+  if (call) {
+    line(id, LINE_ID);
+  }
+});
+// LINEからのイベント
+app.post('/api/line', function(req, res) {
+  console.log('<>POST /test');
+  console.log(req.body);
+  res.sendStatus(200);
 });
 
 app.listen(app.get('port'), function() {
@@ -143,6 +153,22 @@ function loop() {
 //  setTimeout(loop, 900);     // 約１秒ごと(DEBUG)
 }
 
+function notify(id, phone, lineid) {
+  var now = Date.now();
+  if (typeof(calls[id]) != "undefined") {
+    var past = now - calls[id];
+    if (past < 3*60*1000) {        // ３分以内は再電話しない
+      console.log("  now:" + now + " last:" + calls[id] + " past:" + past + " no call");
+      return;
+    }
+    console.log("  now:" + now + " last:" + calls[id] + " past:" + past + " call");
+  }
+  calls[id] = now;
+  twilio(phone);
+  line(id, lineid);
+  line(id, LINE_ID);
+}
+
 // 指定の番号にtwolioを使って電話する
 function twilio(phone) {
   var now = Date.now();
@@ -162,7 +188,6 @@ function twilio(phone) {
   var body = 'NumberToCall=%2B81' + phone.substr( 1);
   console.log(body);
   var url = TWILIO_CALL_URL;
-/*
   request({
     url: url,
     method: 'POST',
@@ -170,8 +195,42 @@ function twilio(phone) {
     body: body,
     json: false
   });
-*/
 }
+
+// LINEする通知
+function line(id, lineid) {
+  var now = Date.now();
+  if (typeof(lineCalls[lineid]) != "undefined") {
+    var past = now - lineCalls[lineid];
+    if (past < 3*60*1000) {        // ３分以内は再電話しない
+      console.log("  now:" + now + " last:" + lineCalls[lineid] + " past:" + past + " no call");
+      return;
+    }
+    console.log("  now:" + now + " last:" + lineCalls[lineid] + " past:" + past + " call");
+  }
+  lineCalls[lineid] = now;
+
+  var headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + LINE_TOKEN
+  }
+  var body = {
+    'to': lineid,
+    'messages': [{
+      'type': 'text',
+      'text': 'オフィスに侵入者発見\n' + id
+    }]
+  }
+  var url = 'https://api.line.me/v2/bot/message/push';
+  request({
+    url: url,
+    method: 'POST',
+    headers: headers,
+    body: body,
+    json: true
+  });
+}
+
 setTimeout(loop, 1000);
 
 /*

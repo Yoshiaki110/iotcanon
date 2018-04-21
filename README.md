@@ -1,11 +1,5 @@
 # iotcanon
 ### TODO
-post every minute and localtime
-- 毎時０分にPOSTする
- - データがなかったらPOSTしない
- - POST後データはクリアする
-- 連続で電話しない
- - 履歴があってかけた時刻が３分以内なら電話しない
 - LINE
  - 電話した場合
 

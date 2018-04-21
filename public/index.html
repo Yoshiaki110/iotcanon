@@ -37,6 +37,7 @@
             console.log(obj);
             frm.phone.value = obj.phone;
             frm.enable.checked = obj.enable;
+            frm.lineid.value = obj.lineid;
             check(frm.mon, obj.mon);
             check(frm.tue, obj.tue);
             check(frm.wed, obj.wed);
@@ -58,7 +59,7 @@
         req.open('POST', '/api/setting', true);
         req.setRequestHeader( 'Content-Type', 'application/json');
         var data = {
-          id: frm.sensorid.value, phone: frm.phone.value, enable: frm.enable.checked,
+          id: frm.sensorid.value, phone: frm.phone.value, enable: frm.enable.checked, lineid: frm.lineid.value,
           len: frm.mon.length,
            mon: isCheck(frm.mon),
            tue: isCheck(frm.tue),
@@ -90,9 +91,10 @@
   <body>
     ■設定画面■
     <form name="frm">
-      センサID<input type="text" name="sensorid" size="17" disabled="disabled">
+      センサID<input type="text" name="sensorid" size="17" disabled="disabled"><br>
       電話番号<input type="text" name="phone" size="17">
-      有効<input type="checkbox" name="enable">
+      有効<input type="checkbox" name="enable"><br>
+      LINE USER ID<input type="text" name="lineid" size="27">
       <br>
 
       <table>
@@ -294,8 +296,13 @@
 
 <p>
 2018/02/21<br>
+人感センサ<br>
 - 日本時間で動いていないバグ対応<br>
-- 同じ番号に連続でかけないように修正<br>
+- 同じ番号に連続で、かけないように修正<br>
+- LINEへの通知は、まだできません<br>
+温度湿度センサ<br>
+- 毎時０分にgoogleシートに書くように変更<br>
+- データがなかったら、以前のデータを書いていたが、書かないように修正<br>
 </p>
 
   </body>
