@@ -1,7 +1,5 @@
 # iotcanon
 ### TODO
-- LINE
- - 電話した場合
 
 ### DEBUG
 - 環境センサ

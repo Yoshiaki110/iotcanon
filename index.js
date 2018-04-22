@@ -109,12 +109,30 @@ app.post('/api/move', function(req, res) {
   }
   if (call) {
     line(id, LINE_ID);
+    line(id, json.lineid);
   }
 });
 // LINEからのイベント
 app.post('/api/line', function(req, res) {
-  console.log('<>POST /test');
+  console.log('<>POST /api/line');
   console.log(req.body);
+  for (var i = 0; i < req.body.events.length; i++) {
+//    console.log(req.body.events[0].type);
+    if (req.body.events[i].type === 'message') {
+      console.log('  ' + req.body.events[i].source.userId + ' ' + req.body.events[i].replyToken + ' ' + req.body.events[i].message.text);
+      var id = req.body.events[i].message.text;
+      if (id == 'BPCM01' || id == 'BPCM02' || id == 'BPCM03') {
+        var json = JSON.parse(fs.readFileSync(id + '.json', 'utf8'));
+        json.lineid = req.body.events[i].source.userId;
+        fs.writeFile(id + '.json', JSON.stringify(json, null, '  '));
+        var msg = '登録完了\n異常があったらお知らせするね';
+        lineReply(req.body.events[i].replyToken, msg);
+      } else {
+        var msg = '人感センサーのIDが違うよ。\n「BPCM99」のような６桁の英数字を送信してね';
+        lineReply(req.body.events[i].replyToken, msg);
+      }
+    }
+  }
   res.sendStatus(200);
 });
 
@@ -230,6 +248,28 @@ function line(id, lineid) {
     json: true
   });
 }
+function lineReply(replyToken, msg) {
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + LINE_TOKEN
+      }
+      var body = {
+        'replyToken': replyToken,
+        'messages': [{
+          'type': 'text',
+          'text': msg
+        }]
+      }
+      var url = 'https://api.line.me/v2/bot/message/reply';
+      request({
+        url: url,
+        method: 'POST',
+        headers: headers,
+        body: body,
+        json: true
+      });
+
+}
 
 setTimeout(loop, 1000);
 
@@ -242,11 +282,4 @@ setTimeout(loop, 1000);
     "pres" : 56,
   }
 }
-・連続で電話しない
-履歴があってかけた時刻が３分以内なら電話しない
-・LINE
-電話した場合
-
-
-
 */
