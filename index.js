@@ -107,7 +107,7 @@ app.post('/api/move', function(req, res) {
   if (call && json.enable && json.phone != '') {
     twilio(json.phone);
   }
-  if (call) {
+  if (call && json.lineid != '') {
     line(id, LINE_ID);
     line(id, json.lineid);
   }
@@ -142,10 +142,11 @@ app.listen(app.get('port'), function() {
 
 // １時間に１回Googleシートに書き込み
 function loop() {
-  var now = new Date();
+  var now = new Date(Date.now() + 9*60*60*1000);
+  var hour = now.getUTCHours();
   var minutes = now.getMinutes();
 //  var minutes = now.getSeconds();     // 秒ごと(DEBUG)
-  console.log("<>loop " + lastMinutes + " > " + minutes);
+  console.log("<>loop " + hour + ':' + lastMinutes + " > " + minutes);
   if (lastMinutes > minutes && minutes == 0) {	// 毎時0分に
     console.log("  0 minute!!");
     for (key in values) {
@@ -169,22 +170,6 @@ function loop() {
   lastMinutes = minutes;
   setTimeout(loop, 55*1000);	// 約１分ごと
 //  setTimeout(loop, 900);     // 約１秒ごと(DEBUG)
-}
-
-function notify(id, phone, lineid) {
-  var now = Date.now();
-  if (typeof(calls[id]) != "undefined") {
-    var past = now - calls[id];
-    if (past < 3*60*1000) {        // ３分以内は再電話しない
-      console.log("  now:" + now + " last:" + calls[id] + " past:" + past + " no call");
-      return;
-    }
-    console.log("  now:" + now + " last:" + calls[id] + " past:" + past + " call");
-  }
-  calls[id] = now;
-  twilio(phone);
-  line(id, lineid);
-  line(id, LINE_ID);
 }
 
 // 指定の番号にtwolioを使って電話する
