@@ -13,6 +13,15 @@ var calls = [];
 var lineCalls = [];
 var lastMinutes = 100;     // 
 
+function consolelog(str) {
+  var now = new Date(Date.now() + 9*60*60*1000);
+  var month = now.getUTCMonth() + 1;
+  var date = now.getUTCDate();
+  var hour = now.getUTCHours();
+  var minutes = now.getMinutes();
+  console.log(month + '/' + date + ' ' + hour + ':' + minutes + ' ' + str);
+}
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -21,16 +30,17 @@ app.set('port', (process.env.PORT || 5000));
 
 // テスト用
 app.post('/test', function(req, res) {
-  console.log('<>POST /test');
-  console.log(req.body);
+  consolelog('<>POST /test');
+  consolelog(req.body);
   res.sendStatus(200);
 });
 
 // 設定ファイルの読み込み
 app.get('/api/setting', function(req, res) {
-  console.log('<>GET /api/setting');
+  consolelog('<>GET /api/setting');
 //  console.log(req);
   var id = req.url.split('?')[1];
+  consolelog(' ' + id);
   var json = JSON.parse(fs.readFileSync(id + '.json', 'utf8'));
   res.header('Content-Type', 'application/json; charset=utf-8');
   //res.sendStatus(200);
@@ -38,16 +48,16 @@ app.get('/api/setting', function(req, res) {
 });
 // 設定ファイルの書き込み
 app.post('/api/setting', function(req, res) {
-  console.log('<>POST /api/setting');
+  consolelog('<>POST /api/setting');
 //  console.log(req.body);
   res.sendStatus(200);
   fs.writeFile(req.body.id + '.json', JSON.stringify(req.body, null, '  '));
-  console.log(req.body.id + '.json');
+  consolelog(' ' + req.body.id + ' ' + req.body.phone + ' ' + req.body.enable + ' ' + req.body.lineid);
 });
 
 // Webiotからのデータを保管
 app.post('/api/webiot', function(req, res) {
-  console.log('<>POST /api/webiot');
+  consolelog('<>POST /api/webiot');
   var key = req.body.id;
   var obj = {"id": key, "temp": 0, "hum": 0, "pres": 0};
   if (typeof(values[key]) != "undefined") {
@@ -65,12 +75,12 @@ app.post('/api/webiot', function(req, res) {
     break;
   }
   values[key] = obj;
-  console.log(req.body.id + ' = ' + req.body.value);
+  consolelog(' ' + req.body.id + ' = ' + req.body.value);
   res.sendStatus(200);
 });
 // 人感センサのイベント
 app.post('/api/move', function(req, res) {
-  console.log('<>POST /api/move');
+  consolelog('<>POST /api/move');
   var id = req.body.id;
   var json = JSON.parse(fs.readFileSync(id + '.json', 'utf8'));
   res.sendStatus(200);
@@ -78,7 +88,7 @@ app.post('/api/move', function(req, res) {
   var hour = now.getUTCHours();                     // UTCで動いているのをJSTにしてる
   var dayOfWeek = now.getDay();
   var call = false;
-  console.log(' dayOfWeek:' + dayOfWeek + ' hour:' + hour);
+  consolelog(' ' + id + ' dayOfWeek:' + dayOfWeek + ' hour:' + hour);
   switch (dayOfWeek) {
   case 0:
     call = json.sun[hour];
@@ -102,8 +112,8 @@ app.post('/api/move', function(req, res) {
     call = json.sat[hour];
     break;
   }
-  console.log(' call:' + call);
-  console.log(' enable:' + json.enable + ' phone:' + json.phone);
+  consolelog(' call:' + call);
+  consolelog(' enable:' + json.enable + ' phone:' + json.phone + ' line:' + json.lineid);
   if (call && json.enable && json.phone != '') {
     twilio(json.phone);
   }
@@ -114,12 +124,12 @@ app.post('/api/move', function(req, res) {
 });
 // LINEからのイベント
 app.post('/api/line', function(req, res) {
-  console.log('<>POST /api/line');
+  consolelog('<>POST /api/line');
   console.log(req.body);
   for (var i = 0; i < req.body.events.length; i++) {
 //    console.log(req.body.events[0].type);
     if (req.body.events[i].type === 'message') {
-      console.log('  ' + req.body.events[i].source.userId + ' ' + req.body.events[i].replyToken + ' ' + req.body.events[i].message.text);
+      consolelog(' ' + req.body.events[i].source.userId + ' ' + req.body.events[i].replyToken + ' ' + req.body.events[i].message.text);
       var id = req.body.events[i].message.text;
       if (id == 'BPCM01' || id == 'BPCM02' || id == 'BPCM03') {
         var json = JSON.parse(fs.readFileSync(id + '.json', 'utf8'));
@@ -137,7 +147,7 @@ app.post('/api/line', function(req, res) {
 });
 
 app.listen(app.get('port'), function() {
-  console.log("Node app is running at localhost:" + app.get('port'))
+  consolelog("Node app is running at localhost:" + app.get('port'))
 });
 
 // １時間に１回Googleシートに書き込み
@@ -146,16 +156,16 @@ function loop() {
   var hour = now.getUTCHours();
   var minutes = now.getMinutes();
 //  var minutes = now.getSeconds();     // 秒ごと(DEBUG)
-  console.log("<>loop " + hour + ':' + lastMinutes + " > " + minutes);
+  consolelog("<>loop " + hour + ':' + lastMinutes + " > " + minutes);
   if (lastMinutes > minutes && minutes == 0) {	// 毎時0分に
-    console.log("  0 minute!!");
+    consolelog(" 0 minute!!");
     for (key in values) {
-      console.log(values[key]);
+      consolelog(" " + values[key].temp + ' ' + values[key].hum + ' ' + values[key].pres);
       if (values[key].temp == 0 && values[key].hum == 0 && values[key].pres == 0) {
-        console.log("  " + key + " no data");
+        consolelog(" " + key + " no data");
         continue;
       }
-      console.log("  " + key + " send data");
+      consolelog(" " + key + " send data");
       var options = {
         uri: "https://script.google.com/macros/s/AKfycbz7IbdIPHUeF2pu_CYT8QQgV5yesTTrjejHbNdvUEC9LWU7jiQ/exec",
         headers: {
@@ -178,10 +188,10 @@ function twilio(phone) {
   if (typeof(calls[phone]) != "undefined") {
     var past = now - calls[phone];
     if (past < 3*60*1000) {        // ３分以内は再電話しない
-      console.log("  now:" + now + " last:" + calls[phone] + " past:" + past + " no call");
+      consolelog(" now:" + now + " last:" + calls[phone] + " past:" + past + " no call");
       return;
     }
-    console.log("  now:" + now + " last:" + calls[phone] + " past:" + past + " call");
+    consolelog(" now:" + now + " last:" + calls[phone] + " past:" + past + " call");
   }
   calls[phone] = now;
   var headers = {
@@ -198,6 +208,7 @@ function twilio(phone) {
     body: body,
     json: false
   });
+  consolelog(" called " + phone);
 }
 
 // LINEする通知
@@ -206,10 +217,10 @@ function line(id, lineid) {
   if (typeof(lineCalls[lineid]) != "undefined") {
     var past = now - lineCalls[lineid];
     if (past < 3*60*1000) {        // ３分以内は再電話しない
-      console.log("  now:" + now + " last:" + lineCalls[lineid] + " past:" + past + " no call");
+      consolelog(" now:" + now + " last:" + lineCalls[lineid] + " past:" + past + " no line");
       return;
     }
-    console.log("  now:" + now + " last:" + lineCalls[lineid] + " past:" + past + " call");
+    consolelog(" now:" + now + " last:" + lineCalls[lineid] + " past:" + past + " line");
   }
   lineCalls[lineid] = now;
 
@@ -232,28 +243,28 @@ function line(id, lineid) {
     body: body,
     json: true
   });
+  consolelog(" lined " + id + ' ' + lineid);
 }
 function lineReply(replyToken, msg) {
-      var headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + LINE_TOKEN
-      }
-      var body = {
-        'replyToken': replyToken,
-        'messages': [{
-          'type': 'text',
-          'text': msg
-        }]
-      }
-      var url = 'https://api.line.me/v2/bot/message/reply';
-      request({
-        url: url,
-        method: 'POST',
-        headers: headers,
-        body: body,
-        json: true
-      });
-
+  var headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + LINE_TOKEN
+  }
+  var body = {
+    'replyToken': replyToken,
+    'messages': [{
+      'type': 'text',
+      'text': msg
+    }]
+  }
+  var url = 'https://api.line.me/v2/bot/message/reply';
+  request({
+    url: url,
+    method: 'POST',
+    headers: headers,
+    body: body,
+    json: true
+  });
 }
 
 setTimeout(loop, 1000);
