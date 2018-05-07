@@ -72,9 +72,12 @@
 //        console.log(data);
         req.send(JSON.stringify(data));
         req.onreadystatechange = function() {
+          console.log('req.readyState:' + req.readyState);
+          console.log('req.status:' + req.status);
           if (req.readyState == 4) { // 通信の完了時
             if (req.status == 200) { // 通信の成功時
 //              frm.result.value = req.responseText;
+              alert('保存成功\n' + req.responseText);
             }
 //          } else {
 //            frm.result.value = "通信中..."
@@ -295,10 +298,13 @@
     </form>
     <img src="lineqrcode.png">
 <p>
-2018/02/22<br>
+2018/05/07<br>
+設定画面<br>
+- 設定完了をポップアップで通知<br>
+2018/04/22<br>
 人感センサ<br>
 - LINEへの通知<br>
-2018/02/21<br>
+2018/04/21<br>
 人感センサ<br>
 - 日本時間で動いていないバグ対応<br>
 - 同じ番号に連続で、かけないように修正<br>
