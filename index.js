@@ -118,8 +118,8 @@ app.post('/api/move', function(req, res) {
     twilio(json.phone);
   }
   if (call && json.lineid != '') {
-    line(id, LINE_ID);
-    line(id, json.lineid);
+    line(id, LINE_ID, 'オフィスに侵入者発見\n' + id, false);
+    line(id, json.lineid, 'オフィスに侵入者発見\n' + id, false);
   }
 });
 // LINEからのイベント
@@ -187,7 +187,7 @@ function twilio(phone) {
   var now = Date.now();
   if (typeof(calls[phone]) != "undefined") {
     var past = now - calls[phone];
-    if (past < 3*60*1000) {        // ３分以内は再電話しない
+    if (past < 1*60*1000) {        // ３分以内は再電話しない
       consolelog(" now:" + now + " last:" + calls[phone] + " past:" + past + " no call");
       return;
     }
@@ -207,22 +207,34 @@ function twilio(phone) {
     headers: headers,
     body: body,
     json: false
+  }
+  , function(error, response, body){
+    if (!error && response.statusCode == 200) {
+      consolelog(' twilio api sccess');
+      line('', LINE_ID, 'twilio api sccess ' + phone, true);
+    } else {
+      consolelog(' twilio api error: '+ response.statusCode);
+      line('', LINE_ID, 'twilio api error ' + response.statusCode + ' ' + phone, true);
+    }
   });
   consolelog(" called " + phone);
 }
 
 // LINEする通知
-function line(id, lineid) {
-  var now = Date.now();
-  if (typeof(lineCalls[lineid]) != "undefined") {
-    var past = now - lineCalls[lineid];
-    if (past < 3*60*1000) {        // ３分以内は再電話しない
-      consolelog(" now:" + now + " last:" + lineCalls[lineid] + " past:" + past + " no line");
-      return;
+function line(id, lineid, msg, force) {
+  consolelog(" line " + id + ' ' + lineid + ' ' + msg + ' ' + force);
+  if (!force) {
+    var now = Date.now();
+    if (typeof(lineCalls[lineid]) != "undefined") {
+      var past = now - lineCalls[lineid];
+      if (past < 3*60*1000) {        // ３分以内は再LINEしない
+        consolelog(" now:" + now + " last:" + lineCalls[lineid] + " past:" + past + " no line");
+        return;
+      }
+      consolelog(" now:" + now + " last:" + lineCalls[lineid] + " past:" + past + " line");
     }
-    consolelog(" now:" + now + " last:" + lineCalls[lineid] + " past:" + past + " line");
+    lineCalls[lineid] = now;
   }
-  lineCalls[lineid] = now;
 
   var headers = {
     'Content-Type': 'application/json',
@@ -232,7 +244,7 @@ function line(id, lineid) {
     'to': lineid,
     'messages': [{
       'type': 'text',
-      'text': 'オフィスに侵入者発見\n' + id
+      'text': msg
     }]
   }
   var url = 'https://api.line.me/v2/bot/message/push';
@@ -242,6 +254,13 @@ function line(id, lineid) {
     headers: headers,
     body: body,
     json: true
+  }
+  , function(error, response, body){
+    if (!error && response.statusCode == 200) {
+      consolelog(' line api sucess ' + id);
+    } else {
+      consolelog(' line api error ' + id + ': ' + response.statusCode);
+    }
   });
   consolelog(" lined " + id + ' ' + lineid);
 }

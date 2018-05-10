@@ -7,7 +7,7 @@
   <script type="text/javascript">
     function init() {
       var id = location.search.substring(1);
-      if (id == 'BPCM01' || id == 'BPCM02' || id == 'BPCM03') {
+      if (id == 'BPCM01' || id == 'BPCM02' || id == 'BPCM03' || id == 'BXCM01' || id == 'BXCM02' || id == 'BXCM03') {
         Get(id);
         frm.sensorid.value = id;
       } else {
@@ -298,6 +298,8 @@
     </form>
     <img src="lineqrcode.png">
 <p>
+2018/05/10<br>
+- 加速度センサでも電話するように対応<br>
 2018/05/07<br>
 設定画面<br>
 - 設定完了をポップアップで通知<br>

@@ -59,4 +59,5 @@ typings/
 
 setting.json
 *.json
+*.bak
 Thumbs.db
