@@ -215,6 +215,7 @@ function twilio(phone) {
     } else {
       consolelog(' twilio api error: '+ response.statusCode);
       line('', LINE_ID, 'twilio api error ' + response.statusCode + ' ' + phone, true);
+      calls[phone] = 0;
     }
   });
   consolelog(" called " + phone);
