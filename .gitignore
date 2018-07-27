@@ -57,7 +57,7 @@ typings/
 # dotenv environment variables file
 .env
 
-setting.json
+setting.js
 *.json
 *.bak
 Thumbs.db

@@ -14,6 +14,11 @@
         frm.sensorid.value = 'ID未設定';
       }
     }
+    function allset(dst, flag) {
+      for (var i = 0; i < dst.length; i++) {
+        dst[i].checked = flag;
+      }
+    }
     function check(dst, src) {
       for (var i = 0; i < dst.length; i++) {
         dst[i].checked = src[i];
@@ -35,9 +40,11 @@
           if (req.status == 200) { // 通信の成功時
             var obj = JSON.parse(req.responseText);
             console.log(obj);
+            frm.sensorname.value = obj.sensorname;
             frm.phone.value = obj.phone;
             frm.enable.checked = obj.enable;
             frm.lineid.value = obj.lineid;
+            frm.mail.value = obj.mail;
             check(frm.mon, obj.mon);
             check(frm.tue, obj.tue);
             check(frm.wed, obj.wed);
@@ -59,7 +66,7 @@
         req.open('POST', '/api/setting', true);
         req.setRequestHeader( 'Content-Type', 'application/json');
         var data = {
-          id: frm.sensorid.value, phone: frm.phone.value, enable: frm.enable.checked, lineid: frm.lineid.value,
+          id: frm.sensorid.value, sensorname: frm.sensorname.value, phone: frm.phone.value, enable: frm.enable.checked, lineid: frm.lineid.value, mail: frm.mail.value,
           len: frm.mon.length,
            mon: isCheck(frm.mon),
            tue: isCheck(frm.tue),
@@ -95,13 +102,14 @@
     ■設定画面■
     <form name="frm">
       センサID<input type="text" name="sensorid" size="17" disabled="disabled"><br>
-      電話番号<input type="text" name="phone" size="17">
-      有効<input type="checkbox" name="enable"><br>
-      LINE USER ID<input type="text" name="lineid" size="27">
-      <br>
+      センサ名称<input type="text" name="sensorname" size="10"><br>
+      電話番号<input type="text" name="phone" size="17">有効<input type="checkbox" name="enable"><br>
+      （市外局番から入力、ハイフン不要）<br>
+      LINE USER ID<input type="text" name="lineid" size="27"><br>
+      メールアドレス<input type="text" name="mail" size="27"><br>
 
       <table>
-        <tr><th>曜日</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th><th>21</th><th>22</th><th>23</th></tr>
+        <tr><th>曜日</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th><th>21</th><th>22</th><th>23</th><th></th></tr>
 
         <tr><td>月</td>
         <td><input type="checkbox" name="mon"></td>
@@ -128,6 +136,8 @@
         <td><input type="checkbox" name="mon"></td>
         <td><input type="checkbox" name="mon"></td>
         <td><input type="checkbox" name="mon"></td>
+        <td><INPUT type="button" name="setmon" onClick="allset(frm.mon, true)" value="全チェック">
+        <INPUT type="button" name="clearmon" onClick="allset(frm.mon, false)" value="全クリア"></td>
         </tr>
 
         <tr><td>火</td>
@@ -155,6 +165,8 @@
         <td><input type="checkbox" name="tue"></td>
         <td><input type="checkbox" name="tue"></td>
         <td><input type="checkbox" name="tue"></td>
+        <td><INPUT type="button" name="settue" onClick="allset(frm.tue, true)" value="全チェック">
+        <INPUT type="button" name="cleartue" onClick="allset(frm.tue, false)" value="全クリア"></td>
         </tr>
 
         <tr><td>水</td>
@@ -182,6 +194,8 @@
         <td><input type="checkbox" name="wed"></td>
         <td><input type="checkbox" name="wed"></td>
         <td><input type="checkbox" name="wed"></td>
+        <td><INPUT type="button" name="setwed" onClick="allset(frm.wed, true)" value="全チェック">
+        <INPUT type="button" name="clearwed" onClick="allset(frm.wed, false)" value="全クリア"></td>
         </tr>
 
         <tr><td>木</td>
@@ -209,6 +223,8 @@
         <td><input type="checkbox" name="thu"></td>
         <td><input type="checkbox" name="thu"></td>
         <td><input type="checkbox" name="thu"></td>
+        <td><INPUT type="button" name="setthu" onClick="allset(frm.thu, true)" value="全チェック">
+        <INPUT type="button" name="clearthu" onClick="allset(frm.thu, false)" value="全クリア"></td>
         </tr>
 
         <tr><td>金</td>
@@ -236,6 +252,8 @@
         <td><input type="checkbox" name="fri"></td>
         <td><input type="checkbox" name="fri"></td>
         <td><input type="checkbox" name="fri"></td>
+        <td><INPUT type="button" name="setfri" onClick="allset(frm.fri, true)" value="全チェック">
+        <INPUT type="button" name="clearfri" onClick="allset(frm.fri, false)" value="全クリア"></td>
         </tr>
 
         <tr><td>土</td>
@@ -263,6 +281,8 @@
         <td><input type="checkbox" name="sat"></td>
         <td><input type="checkbox" name="sat"></td>
         <td><input type="checkbox" name="sat"></td>
+        <td><INPUT type="button" name="setsat" onClick="allset(frm.sat, true)" value="全チェック">
+        <INPUT type="button" name="clearsat" onClick="allset(frm.sat, false)" value="全クリア"></td>
         </tr>
 
         <tr><td>日</td>
@@ -290,6 +310,8 @@
         <td><input type="checkbox" name="sun"></td>
         <td><input type="checkbox" name="sun"></td>
         <td><input type="checkbox" name="sun"></td>
+        <td><INPUT type="button" name="setsun" onClick="allset(frm.sun, true)" value="全チェック">
+        <INPUT type="button" name="clearsun" onClick="allset(frm.sun, false)" value="全クリア"></td>
         </tr>
 
       </table>

@@ -55,7 +55,7 @@ app.post('/api/setting', function(req, res) {
   consolelog(' ' + req.body.id + ' ' + req.body.phone + ' ' + req.body.enable + ' ' + req.body.lineid);
 });
 
-// Webiotからのデータを保管
+// 温度湿度センサのデータを保管
 app.post('/api/webiot', function(req, res) {
   consolelog('<>POST /api/webiot');
   var key = req.body.id;
@@ -78,6 +78,7 @@ app.post('/api/webiot', function(req, res) {
   consolelog(' ' + req.body.id + ' = ' + req.body.value);
   res.sendStatus(200);
 });
+
 // 人感センサのイベント
 app.post('/api/move', function(req, res) {
   consolelog('<>POST /api/move');
@@ -118,10 +119,11 @@ app.post('/api/move', function(req, res) {
     twilio(json.phone);
   }
   if (call && json.lineid != '') {
-    line(id, LINE_ID, 'オフィスに侵入者発見\n' + id, false);
-    line(id, json.lineid, 'オフィスに侵入者発見\n' + id, false);
+    line(id, LINE_ID, 'オフィスに侵入者発見\n' + id, false);      // 管理者に通知
+    line(id, json.lineid, 'オフィスに侵入者発見\n' + id, false);  // ユーザに通知
   }
 });
+
 // LINEからのイベント
 app.post('/api/line', function(req, res) {
   consolelog('<>POST /api/line');
@@ -265,6 +267,8 @@ function line(id, lineid, msg, force) {
   });
   consolelog(" lined " + id + ' ' + lineid);
 }
+
+// LINEに（登録時の）返信する
 function lineReply(replyToken, msg) {
   var headers = {
     'Content-Type': 'application/json',
