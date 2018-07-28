@@ -49,6 +49,7 @@ app.get('/api/setting', function(req, res) {
   //res.sendStatus(200);
   res.send(json);
 });
+
 // 設定ファイルの書き込み
 app.post('/api/setting', function(req, res) {
   consolelog('<>POST /api/setting');
@@ -56,6 +57,17 @@ app.post('/api/setting', function(req, res) {
   res.sendStatus(200);
   fs.writeFile(req.body.id + '.json', JSON.stringify(req.body, null, '  '));
   consolelog(' ' + req.body.id + ' ' + req.body.phone + ' ' + req.body.enable + ' ' + req.body.lineid);
+});
+
+// 有効フラグを落とす（２度とかけないでを選択した場合）
+app.post('/api/setting/disable', function(req, res) {
+  consolelog('<>POST /test');
+  console.log(req.body);
+  var id = req.body.body;
+  var json = JSON.parse(fs.readFileSync(id + '.json', 'utf8'));
+  json.enable = false;
+  fs.writeFile(id + '.json', JSON.stringify(json, null, '  '));
+  res.sendStatus(200);
 });
 
 // 温度湿度センサのデータを保管
@@ -119,7 +131,7 @@ app.post('/api/move', function(req, res) {
   consolelog(' call:' + call);
   consolelog(' enable:' + json.enable + ' phone:' + json.phone + ' line:' + json.lineid);
   if (call && json.enable && json.phone != '') {
-    twilio(json.phone, json.sensorname);
+    twilio(id, json.phone, json.sensorname);
   }
   if (call && json.lineid != '') {
     line(id, LINE_ID, 'オフィスに侵入者発見\n' + id, false);      // 管理者に通知
@@ -188,7 +200,7 @@ function loop() {
 }
 
 // 指定の番号にtwolioを使って電話する
-function twilio(phone, name) {
+function twilio(id, phone, name) {
   var now = Date.now();
   if (typeof(calls[phone]) != "undefined") {
     var past = now - calls[phone];
@@ -203,7 +215,7 @@ function twilio(phone, name) {
     'Accept': '*/*',
     'Content-Type': 'application/x-www-form-urlencoded'
   }
-  var body = 'To=+81' + phone.substr(1) + '&From=+815031844729&Parameters={"name":"' + name + '"}';
+  var body = 'To=+81' + phone.substr(1) + '&From=+815031844729&Parameters={"id":"' + id +  '","name":"' + name + '"}';
   console.log(body);
   var url = TWILIO_FLOW_URL;
   request({

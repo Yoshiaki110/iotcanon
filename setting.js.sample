@@ -1,0 +1,6 @@
+exports.LINE_TOKEN = '/HKi5N/+ZbHU8QDE1rpyd+sMcL+HOsFi35O+RrX8fH8L/CokbRjaISSqrgv4hrrDhSeIz8JCgHqcKVYddjFRF7dwdB04t89/1O/w1cDnyilFU='
+exports.LINE_ID = ''
+exports.TWILIO_FLOW_URL = ''
+exports.TWILIO_ACCOUNT_SID  = ''
+exports.TWILIO_AUTH_TOKEN = ''
+exports.GOOGLE_SHEETS_URL = ''
