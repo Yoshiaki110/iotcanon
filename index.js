@@ -3,9 +3,12 @@ var fs = require('fs');
 var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
-var TWILIO_CALL_URL = setting.TWILIO_CALL_URL;
 var LINE_TOKEN = setting.LINE_TOKEN;
 var LINE_ID = setting.LINE_ID;
+var TWILIO_FLOW_URL = setting.TWILIO_FLOW_URL;
+var TWILIO_ACCOUNT_SID = setting.TWILIO_ACCOUNT_SID;
+var TWILIO_AUTH_TOKEN = setting.TWILIO_AUTH_TOKEN;
+var GOOGLE_SHEETS_URL= setting.GOOGLE_SHEETS_URL;
 
 var app = express();
 var values = [];
@@ -31,7 +34,7 @@ app.set('port', (process.env.PORT || 5000));
 // テスト用
 app.post('/test', function(req, res) {
   consolelog('<>POST /test');
-  consolelog(req.body);
+  console.log(req.body);
   res.sendStatus(200);
 });
 
@@ -116,7 +119,7 @@ app.post('/api/move', function(req, res) {
   consolelog(' call:' + call);
   consolelog(' enable:' + json.enable + ' phone:' + json.phone + ' line:' + json.lineid);
   if (call && json.enable && json.phone != '') {
-    twilio(json.phone);
+    twilio(json.phone, json.sensorname);
   }
   if (call && json.lineid != '') {
     line(id, LINE_ID, 'オフィスに侵入者発見\n' + id, false);      // 管理者に通知
@@ -169,7 +172,7 @@ function loop() {
       }
       consolelog(" " + key + " send data");
       var options = {
-        uri: "https://script.google.com/macros/s/AKfycbz7IbdIPHUeF2pu_CYT8QQgV5yesTTrjejHbNdvUEC9LWU7jiQ/exec",
+        uri: GOOGLE_SHEETS_URL,
         headers: {
           "Content-type": "application/json",
         },
@@ -185,7 +188,7 @@ function loop() {
 }
 
 // 指定の番号にtwolioを使って電話する
-function twilio(phone) {
+function twilio(phone, name) {
   var now = Date.now();
   if (typeof(calls[phone]) != "undefined") {
     var past = now - calls[phone];
@@ -200,15 +203,18 @@ function twilio(phone) {
     'Accept': '*/*',
     'Content-Type': 'application/x-www-form-urlencoded'
   }
-  var body = 'NumberToCall=%2B81' + phone.substr( 1);
+  var body = 'To=+81' + phone.substr(1) + '&From=+815031844729&Parameters={"name":"' + name + '"}';
   console.log(body);
-  var url = TWILIO_CALL_URL;
+  var url = TWILIO_FLOW_URL;
   request({
     url: url,
     method: 'POST',
     headers: headers,
-    body: body,
-    json: false
+    auth: {
+      user: TWILIO_ACCOUNT_SID,
+      password: TWILIO_AUTH_TOKEN
+    },
+    body: body
   }
   , function(error, response, body){
     if (!error && response.statusCode == 200) {
@@ -218,6 +224,7 @@ function twilio(phone) {
       consolelog(' twilio api error: '+ response.statusCode);
       line('', LINE_ID, 'twilio api error ' + response.statusCode + ' ' + phone, true);
       calls[phone] = 0;
+      console.log(body);
     }
   });
   consolelog(" called " + phone);
