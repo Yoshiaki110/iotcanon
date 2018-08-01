@@ -60,8 +60,31 @@
         }
       }
     }
+    function inputCheck() {
+        var reg1 = new RegExp(/[!"#$%&'()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]/g);
+        if (frm.sensorname.value && reg1.test(frm.sensorname.value)) {
+          alert('センサ名称に記号は入力できません');
+          return false;
+        }
+        if (frm.phone.value && ! /^[0-9]+$/.test(frm.phone.value)) {
+          alert('電話番号は半角の数字のみ有効です');
+          return false;
+        }
+        if (frm.lineid.value && ! /^[0-9a-zA-Z]+$/.test(frm.lineid.value)) {
+          alert('LINE USER IDは半角の英数字のみ有効です');
+          return false;
+        }
+        var reg2 = new RegExp(/[!"#$%&'()\*,\/:;<=>?\[\\\]^`{|}~]/g);
+        if (frm.mail.value && reg2.test(frm.mail.value)) {
+          alert('メールアドレスに記号は入力できません');
+          return false;
+        }
+    }
     function Post() {
       if (frm.sensorid.value != 'ID未設定') {
+        if (!inputCheck()) {
+          return;
+        }
         var req = new XMLHttpRequest();
         req.open('POST', '/api/setting', true);
         req.setRequestHeader( 'Content-Type', 'application/json');
